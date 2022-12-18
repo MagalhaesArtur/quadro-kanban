@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model TypeTask{
+ id         String @id @default(uuid())
+ type       String
+
+ task   Task[]
+}
+
+
+model Task{
+ id         String @id @default(uuid())
+ content    String
+ priority   Int
+ type       String
+
+ typeTask TypeTask   @relation(fields: [typeId],references: [id])
+ typeId String
+ comments   CommentTask[]
+}
+
+model CommentTask{
+  id          String @id @default(uuid())
+  content     String
+
+
+  task Task   @relation(fields: [taskId],references: [id])
+  taskId      String
+}
