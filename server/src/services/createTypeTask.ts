@@ -1,8 +1,10 @@
+import { Task } from "@prisma/client";
 import { prisma } from "../prisma";
 
 export interface TypeProps {
   type: string;
-  id?: string;
+  id: string;
+  tasks: Task[];
 }
 
 export class CreateType {

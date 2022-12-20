@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { idn, TasksProps, TypeProps } from "./utils/interfaces";
-import "./main.css";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { useState, useEffect } from "react";
+import { DragDropContext } from "react-beautiful-dnd";
+import { Droppable } from "react-beautiful-dnd";
+import { Draggable } from "react-beautiful-dnd";
 
 const options = {
   method: "GET",
@@ -10,31 +10,42 @@ const options = {
   },
 };
 
-function unirTypes(tasks: TasksProps[], typesTasks: TypeProps[]) {
-  var aux: idn[] = [];
-
-  typesTasks.map((type) => {
-    tasks.map((task) => {
-      if (type.type == task.type) {
-        aux.push({
-          type,
-          task,
-        });
-      }
-    });
-  });
-
-  return aux;
-}
-
 function App() {
-  const [tasks, setTasks] = useState(Array<TasksProps>);
+  interface TaskCommentsProps {
+    id?: String;
+    content: string;
+    taskId: string;
+  }
+
+  interface TaskProps {
+    id: string;
+    content: string;
+    priority: number;
+    type: string;
+    typeId: string;
+  }
+
+  interface TypeProps {
+    type: string;
+    id: string;
+    tasks: Array<TaskProps>;
+  }
+
   const [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
+  const [i, seti] = useState(0);
 
-  let aux: idn[] = [];
-
-  function handleOnDragEnd(result: any) {
-    console.log("cu");
+  function updateTask(typesTasks: Array<TypeProps>): object {
+    const options2 = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        typesTasks,
+      }),
+    };
+    console.log(typesTasks);
+    return options2;
   }
 
   useEffect(() => {
@@ -46,72 +57,163 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3333/", options).then((res) => {
-      res.json().then((data) => {
-        setTasks(data);
-      });
+    fetch("http://localhost:3333/types", updateTask(typesTasks)).then((res) => {
+      // res.json().then((data) => {
+      //   console.log(data);
+      // });
     });
-  }, []);
+  }, [i]);
 
-  aux = unirTypes(tasks, typesTasks);
+  var filteredSourceType: TaskProps[] = [];
 
+  const onDragEnd = (result: any) => {
+    var draggedItem: any;
+    // Excluindo o item arrastado
+    if (result.destination.droppableId == result.source.droppableId) {
+      for (let type of typesTasks) {
+        if (type.id == result.destination.droppableId) {
+          let sourceType = type.tasks;
+          filteredSourceType = sourceType.filter(
+            (type) => type.id != result.draggableId
+          );
+        }
+      }
+    }
+
+    //
+
+    // Localizando o item para colocar na nova posição (mesma coluna)
+    for (let i in typesTasks) {
+      if (
+        typesTasks[i].id == result.destination.droppableId &&
+        result.source.droppableId == result.destination.droppableId
+      ) {
+        for (let j in typesTasks[i].tasks) {
+          if (typesTasks[i].tasks[j].id == result.draggableId) {
+            draggedItem = typesTasks[i].tasks[j];
+          }
+        }
+      }
+    }
+    //
+
+    // Localizando o item para colocar na nova posição (!= coluna)
+    for (let i in typesTasks) {
+      if (
+        typesTasks[i].id == result.source.droppableId &&
+        result.source.droppableId != result.destination.droppableId
+      ) {
+        for (let j in typesTasks[i].tasks) {
+          if (typesTasks[i].tasks[j].id == result.draggableId) {
+            draggedItem = typesTasks[i].tasks[j];
+          }
+        }
+      }
+    }
+    //
+
+    // Adicionando o mesmo item na nova posição
+    if (result.destination.droppableId == result.source.droppableId) {
+      filteredSourceType.splice(result.destination.index, 0, draggedItem);
+
+      for (let i in typesTasks) {
+        if (typesTasks[i].id == result.destination.droppableId) {
+          let copy = JSON.parse(JSON.stringify(typesTasks));
+          copy[i].tasks = filteredSourceType;
+          setTypesTasks(copy);
+        }
+      }
+    }
+    //
+
+    // Excluindo um item de uma coluna para adicionar em outra
+    for (let i in typesTasks) {
+      if (
+        typesTasks[i].id == result.source.droppableId &&
+        result.source.droppableId != result.destination.droppableId
+      ) {
+        typesTasks[i].tasks.splice(typesTasks[i].tasks.indexOf(draggedItem), 1);
+      }
+    }
+    //
+
+    // Adiconando um item que foi retirado de uma coluna para colar em outra
+    for (let i in typesTasks) {
+      if (
+        typesTasks[i].id == result.destination.droppableId &&
+        result.source.droppableId != result.destination.droppableId
+      ) {
+        let copy = JSON.parse(JSON.stringify(typesTasks));
+
+        copy[i].tasks.splice(result.destination.index, 0, draggedItem);
+        copy[i].tasks[result.destination.index].type = copy[i].type;
+        copy[i].tasks[result.destination.index].typeId = copy[i].id;
+        setTypesTasks(copy);
+      }
+    }
+    //
+  };
   return (
-    <div className=" min-h-screen min-w-screen p-4 bg-slate-300">
-      <div className="w-[80%] justify-center flex gap-x-10">
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          {typesTasks.map((type1) => (
-            <Droppable droppableId="characters">
-              {(type3) => (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        {typesTasks.map((type) => (
+          <div
+            key={type.id}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <h1>{type.type}</h1>
+            <Droppable droppableId={type.id} key={type.id}>
+              {(provided) => (
                 <div
-                  className="w-[500px] h-96 items-center justify-center  bg-slate-300 shadow-2xl flex flex-col p-4 gap-y-6 rounded-lg"
-                  {...type3.droppableProps}
-                  ref={type3.innerRef}
+                  ref={provided.innerRef}
+                  style={{
+                    backgroundColor: "lightblue",
+                    width: 250,
+                    height: 500,
+                    padding: 10,
+                    margin: 10,
+                  }}
                 >
-                  <>
-                    {aux.map((aux, index) =>
-                      aux.task.type == type1.type ? (
-                        <Draggable
-                          key={aux.task.id}
-                          draggableId={aux.task.id}
-                          index={index}
+                  {type.tasks.map((item, index) => (
+                    <Draggable
+                      draggableId={item.id}
+                      index={index}
+                      key={item.id}
+                    >
+                      {(provided) => (
+                        <div
+                          {...provided.dragHandleProps}
+                          {...provided.draggableProps}
+                          ref={provided.innerRef}
+                          style={{
+                            backgroundColor: "gray",
+                            height: 40,
+                            marginBottom: 10,
+                            ...provided.draggableProps.style,
+                          }}
+                          onMouseLeave={() => {
+                            seti(i + 1);
+                            console.log("2");
+                          }}
                         >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              className="w-[70%] h-10 bg-red-500 text-center"
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <div className="w-[70%] h-10">
-                                {aux.task.content}
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ) : null
-                    )}
-                    {type3.placeholder}
-                  </>
+                          {item.content}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
               )}
             </Droppable>
-          ))}
-        </DragDropContext>
-      </div>
+          </div>
+        ))}
+      </DragDropContext>
     </div>
   );
 }
 
 export default App;
-
-{
-  /* {tasks.map((task) => {
-  if (task.type == type.type) {
-    return (
-      <div className="w-[90%] h-20 flex justify-center items-center bg-slate-200 shadow-xl rounded-lg">
-        {task.content}
-      </div>
-    );
-  }
-})} */
-}
