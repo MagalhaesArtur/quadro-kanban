@@ -1,11 +1,10 @@
-export interface TasksProps {
+export interface TaskProps {
   id: string;
   content: string;
   priority: number;
   type: string;
-  comments?: TaskCommentsProps[];
+  typeId: string;
 }
-
 export interface TaskCommentsProps {
   id?: String;
   content: string;
@@ -14,10 +13,6 @@ export interface TaskCommentsProps {
 
 export interface TypeProps {
   type: string;
-  id?: string;
-}
-
-export interface idn {
-  type: TypeProps;
-  task: TasksProps;
+  id: string;
+  tasks: Array<TaskProps>;
 }

@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Droppable } from "react-beautiful-dnd";
 import { Draggable } from "react-beautiful-dnd";
-
+import { X } from "phosphor-react";
+import "./main.css";
+import { TaskProps, TypeProps } from "./utils/interfaces";
+import { deleteTesk } from "./utils/deleteTask";
 const options = {
   method: "GET",
   headers: {
@@ -11,62 +14,61 @@ const options = {
 };
 
 function App() {
-  interface TaskCommentsProps {
-    id?: String;
-    content: string;
-    taskId: string;
-  }
-
-  interface TaskProps {
-    id: string;
-    content: string;
-    priority: number;
-    type: string;
-    typeId: string;
-  }
-
-  interface TypeProps {
-    type: string;
-    id: string;
-    tasks: Array<TaskProps>;
-  }
-
   const [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
   const [i, seti] = useState(0);
+  const [isMouseOnTask, setIsMouseOnTask] = useState(false);
+  const [itemId, setItemId] = useState("");
+
+  const [num, setNum] = useState(0);
 
   function updateTask(typesTasks: Array<TypeProps>): object {
+    console.log(typesTasks);
     const options2 = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        typesTasks,
-      }),
+      body: JSON.stringify(typesTasks),
     };
-    console.log(typesTasks);
     return options2;
   }
 
   useEffect(() => {
-    fetch("http://localhost:3333/types", options).then((res) => {
-      res.json().then((data) => {
-        setTypesTasks(data);
+    let aux: any = localStorage.getItem("data");
+    if (aux == null) {
+      fetch("http://localhost:3333/types", options).then((res) => {
+        res.json().then((data) => {
+          setTypesTasks(data);
+          localStorage.setItem("data", JSON.stringify(data));
+        });
       });
-    });
+    } else {
+      setTypesTasks(JSON.parse(aux));
+    }
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:3333/types", updateTask(typesTasks)).then((res) => {
-      // res.json().then((data) => {
-      //   console.log(data);
-      // });
-    });
+    if (num != 0) {
+      let aux: any = localStorage.getItem("data");
+      if (aux != null) {
+        fetch("http://localhost:3333/types", updateTask(typesTasks)).then(
+          (res) => {
+            res.json().then((data) => {
+              console.log(data);
+              localStorage.setItem("data", JSON.stringify(data));
+            });
+          }
+        );
+      }
+    }
   }, [i]);
 
   var filteredSourceType: TaskProps[] = [];
 
   const onDragEnd = (result: any) => {
+    setNum(1 + num);
+    seti(1 + i);
+
     var draggedItem: any;
     // Excluindo o item arrastado
     if (result.destination.droppableId == result.source.droppableId) {
@@ -153,31 +155,27 @@ function App() {
     }
     //
   };
+
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div className="flex justify-center gap-9" id="main">
       <DragDropContext onDragEnd={onDragEnd}>
         {typesTasks.map((type) => (
-          <div
-            key={type.id}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <h1>{type.type}</h1>
+          <div key={type.id}>
             <Droppable droppableId={type.id} key={type.id}>
               {(provided) => (
                 <div
                   ref={provided.innerRef}
-                  style={{
-                    backgroundColor: "lightblue",
-                    width: 250,
-                    height: 500,
-                    padding: 10,
-                    margin: 10,
-                  }}
+                  className="bg-[#D0D3D4] rounded-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
                 >
+                  <h1 className="text-2xl font-bold mb-3 text-slate-900">
+                    {type.type == "todo"
+                      ? "Para fazer"
+                      : type.type == "doing"
+                      ? "Fazendo"
+                      : type.type == "done"
+                      ? "Concluído"
+                      : type.type}
+                  </h1>
                   {type.tasks.map((item, index) => (
                     <Draggable
                       draggableId={item.id}
@@ -189,18 +187,31 @@ function App() {
                           {...provided.dragHandleProps}
                           {...provided.draggableProps}
                           ref={provided.innerRef}
-                          style={{
-                            backgroundColor: "gray",
-                            height: 40,
-                            marginBottom: 10,
-                            ...provided.draggableProps.style,
+                          onMouseEnter={() => {
+                            setItemId(item.id);
+                            setIsMouseOnTask(true);
                           }}
                           onMouseLeave={() => {
-                            seti(i + 1);
-                            console.log("2");
+                            setIsMouseOnTask(false);
                           }}
+                          className="w-[100%] h-14 flex justify-between items-center text-slate-700 text-lg font-medium  my-1 bg-red-50 p-3 rounded-lg shadow-lg"
                         >
                           {item.content}
+                          <X
+                            size={24}
+                            onClick={() => {
+                              setTypesTasks(
+                                deleteTesk(item, JSON.stringify(typesTasks))
+                              );
+                              seti(i + 1);
+                            }}
+                            className={
+                              isMouseOnTask && item.id == itemId
+                                ? `text-red-500 transition-all`
+                                : "text-transparent  transition-all"
+                            }
+                            weight="bold"
+                          />
                         </div>
                       )}
                     </Draggable>

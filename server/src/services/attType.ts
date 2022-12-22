@@ -8,17 +8,23 @@ export interface TypeProps {
 }
 
 export class AttType {
+  public listTypes: any[] = [];
+
   async att(data: TypeProps[]) {
     for (let type of data) {
+      let listTasks: Task[] = [];
       for (let task of type.tasks) {
-        await prisma.task.update({
+        let taskUp: Task = await prisma.task.update({
           where: {
             id: task.id,
           },
           data: task,
         });
+        listTasks.push(taskUp);
       }
+      this.listTypes.push({ type: type.type, id: type.id, tasks: listTasks });
     }
+    return this.listTypes;
   }
 }
 

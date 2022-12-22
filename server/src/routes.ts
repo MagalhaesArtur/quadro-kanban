@@ -70,10 +70,10 @@ routes.get("/types", async (req, res) => {
 });
 
 routes.post("/types", async (req, res) => {
-  const data: TypeProps[] = req.body.typesTasks;
+  const data: TypeProps[] = await req.body;
   const attTypes = await new AttType().att(data);
-  // console.log(attTypes);
-  // return res.json(attTypes).status(201);
+  console.log(attTypes, "sdas");
+  return res.json(attTypes).status(201);
 });
 
 routes.get("/", async (req, res) => {
