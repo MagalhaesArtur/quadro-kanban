@@ -1,16 +1,31 @@
 import { TaskProps, TypeProps } from "./interfaces";
 
-export const deleteTesk = (task: TaskProps, typeTasksString: string) => {
-  let typeTasks: TypeProps[] = JSON.parse(typeTasksString);
-  console.log(typeTasks);
+export const deleteTesk = (
+  item: TaskProps,
+  typesTasks: TypeProps[],
+  setTypesTasks: Function
+) => {
+  let aux = JSON.stringify(typesTasks);
 
-  for (let type of typeTasks) {
-    for (let task1 of type.tasks) {
-      if (task.id == task1.id) {
-        console.log(task, task1);
-        type.tasks.splice(type.tasks.indexOf(task), 1);
+  fetch("http://localhost:3333/deleteTask", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(item),
+  }).then((res) => {
+    res.json().then(async (data) => {
+      let aux2: TypeProps[] = JSON.parse(aux);
+      for (let type of aux2) {
+        for (let task of type.tasks) {
+          if (task.id == data.id) {
+            type.tasks = type.tasks.splice(type.tasks.indexOf(data), 1);
+          }
+        }
       }
-    }
-  }
-  return typeTasks;
+      setTypesTasks(aux2);
+      localStorage.setItem("data", JSON.stringify(aux2));
+      typesTasks = aux2;
+    });
+  });
 };

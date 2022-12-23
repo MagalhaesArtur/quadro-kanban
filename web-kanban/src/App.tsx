@@ -6,6 +6,7 @@ import { X } from "phosphor-react";
 import "./main.css";
 import { TaskProps, TypeProps } from "./utils/interfaces";
 import { deleteTesk } from "./utils/deleteTask";
+import HeaderType from "./components/headerType";
 const options = {
   method: "GET",
   headers: {
@@ -14,7 +15,7 @@ const options = {
 };
 
 function App() {
-  const [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
+  let [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
   const [i, seti] = useState(0);
   const [isMouseOnTask, setIsMouseOnTask] = useState(false);
   const [itemId, setItemId] = useState("");
@@ -22,7 +23,6 @@ function App() {
   const [num, setNum] = useState(0);
 
   function updateTask(typesTasks: Array<TypeProps>): object {
-    console.log(typesTasks);
     const options2 = {
       method: "POST",
       headers: {
@@ -54,7 +54,6 @@ function App() {
         fetch("http://localhost:3333/types", updateTask(typesTasks)).then(
           (res) => {
             res.json().then((data) => {
-              console.log(data);
               localStorage.setItem("data", JSON.stringify(data));
             });
           }
@@ -161,21 +160,13 @@ function App() {
       <DragDropContext onDragEnd={onDragEnd}>
         {typesTasks.map((type) => (
           <div key={type.id}>
+            <HeaderType type={type}></HeaderType>
             <Droppable droppableId={type.id} key={type.id}>
               {(provided) => (
                 <div
                   ref={provided.innerRef}
-                  className="bg-[#D0D3D4] rounded-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
+                  className="bg-[#D0D3D4] rounded-b-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
                 >
-                  <h1 className="text-2xl font-bold mb-3 text-slate-900">
-                    {type.type == "todo"
-                      ? "Para fazer"
-                      : type.type == "doing"
-                      ? "Fazendo"
-                      : type.type == "done"
-                      ? "Concluído"
-                      : type.type}
-                  </h1>
                   {type.tasks.map((item, index) => (
                     <Draggable
                       draggableId={item.id}
@@ -194,21 +185,35 @@ function App() {
                           onMouseLeave={() => {
                             setIsMouseOnTask(false);
                           }}
-                          className="w-[100%] h-14 flex justify-between items-center text-slate-700 text-lg font-medium  my-1 bg-red-50 p-3 rounded-lg shadow-lg"
+                          className={`w-[100%] h-14 flex justify-between border-l-[5px]  items-center ${
+                            item.priority == 0
+                              ? "border-blue-600"
+                              : item.priority == 1
+                              ? "border-orange-400"
+                              : item.priority == 2
+                              ? "border-red-600"
+                              : null
+                          } text-slate-700 text-lg font-medium my-1 bg-red-50 p-3 rounded-lg shadow-lg`}
+                          title={`${
+                            item.priority == 0
+                              ? "Prioridade: Fazer sem pressa"
+                              : item.priority == 1
+                              ? "Prioridade: Não atrasar"
+                              : item.priority == 2
+                              ? "Prioridade: Urgente"
+                              : null
+                          }`}
                         >
                           {item.content}
                           <X
                             size={24}
                             onClick={() => {
-                              setTypesTasks(
-                                deleteTesk(item, JSON.stringify(typesTasks))
-                              );
-                              seti(i + 1);
+                              deleteTesk(item, typesTasks, setTypesTasks);
                             }}
                             className={
                               isMouseOnTask && item.id == itemId
-                                ? `text-red-500 transition-all`
-                                : "text-transparent  transition-all"
+                                ? `text-red-500 transition-all z-10 cursor-pointer`
+                                : "text-transparent  transition-all z-10 cursor-pointer"
                             }
                             weight="bold"
                           />

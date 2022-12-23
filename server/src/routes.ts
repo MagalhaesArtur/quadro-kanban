@@ -7,6 +7,7 @@ import { GetTask } from "./services/getTasks";
 import { CreateType, TypeProps } from "./services/createTypeTask";
 import { GetTypes } from "./services/getTypes";
 import { AttType } from "./services/attType";
+import { DeleteTask } from "./services/deleteTask";
 export const routes = express.Router();
 
 routes.post("/createTask", async (req, res) => {
@@ -79,4 +80,11 @@ routes.post("/types", async (req, res) => {
 routes.get("/", async (req, res) => {
   const tasks: TypeProps[] = await new GetTask().get();
   return res.json(tasks).status(201);
+});
+
+routes.delete("/deleteTask", async (req, res) => {
+  const task: TaskProps = await req.body;
+  console.log(task);
+  const deletedTask: TaskProps = await new DeleteTask().delete(task);
+  return res.json(deletedTask).status(201);
 });
