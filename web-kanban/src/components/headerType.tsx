@@ -1,6 +1,7 @@
 import { TypeProps } from "../utils/interfaces";
 import Button from "@mui/material/Button";
 import PlaylistAddSharpIcon from "@mui/icons-material/PlaylistAddSharp";
+import * as Dialog from "@radix-ui/react-dialog";
 
 function HeaderType(props: any) {
   return (
@@ -14,11 +15,13 @@ function HeaderType(props: any) {
           ? "Concluído"
           : props.type.type}
       </h1>
-      <Button
-        className="!border-green-[#0e5cad] !border-[2px]"
-        variant="outlined"
-        startIcon={<PlaylistAddSharpIcon className="text-green-[#0e5cad]" />}
-      ></Button>
+      <Dialog.Trigger>
+        <Button
+          className="!border-green-[#0e5cad] !border-[2px]"
+          variant="outlined"
+          startIcon={<PlaylistAddSharpIcon className="text-green-[#0e5cad]" />}
+        ></Button>
+      </Dialog.Trigger>
     </div>
   );
 }
