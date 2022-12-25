@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TaskProps, TypeProps } from "./interfaces";
 
 export const deleteTesk = (
@@ -5,7 +6,7 @@ export const deleteTesk = (
   typesTasks: TypeProps[],
   setTypesTasks: Function
 ) => {
-  let aux = JSON.stringify(typesTasks);
+  let aux2: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
 
   fetch("http://localhost:3333/deleteTask", {
     method: "DELETE",
@@ -14,18 +15,10 @@ export const deleteTesk = (
     },
     body: JSON.stringify(item),
   }).then((res) => {
-    res.json().then(async (data) => {
-      let aux2: TypeProps[] = JSON.parse(aux);
-      for (let type of aux2) {
-        for (let task of type.tasks) {
-          if (task.id == data.id) {
-            type.tasks = type.tasks.splice(type.tasks.indexOf(data), 1);
-          }
-        }
-      }
-      setTypesTasks(aux2);
-      localStorage.setItem("data", JSON.stringify(aux2));
-      typesTasks = aux2;
+    res.json().then((data: any) => {
+      console.log(data);
+      return data;
     });
   });
+  // return types;
 };

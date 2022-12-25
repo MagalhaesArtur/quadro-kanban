@@ -11,6 +11,7 @@ import { DeleteTask } from "./services/deleteTask";
 export const routes = express.Router();
 
 routes.post("/createTask", async (req, res) => {
+  console.log(req.body);
   const { content, priority, typeId, type }: TaskProps = req.body;
   if (content.length > 300) {
     return res.status(400).json("too lange content").send();
@@ -23,9 +24,10 @@ routes.post("/createTask", async (req, res) => {
   };
 
   const task = new CreateTask();
-  task.create(data);
+  const task1: any = await task.create(data);
+  console.log(task1);
 
-  return res.status(201).send();
+  return res.json(task1).status(201).send();
 });
 
 routes.post("/comment", async (req, res) => {
@@ -43,7 +45,6 @@ routes.post("/comment", async (req, res) => {
 
   return res.status(201).send();
 });
-
 routes.post("/createType", async (req, res) => {
   const { type }: TypeProps = req.body;
   if (type.length > 300) {
@@ -86,5 +87,7 @@ routes.delete("/deleteTask", async (req, res) => {
   const task: TaskProps = await req.body;
   console.log(task);
   const deletedTask: TaskProps = await new DeleteTask().delete(task);
-  return res.json(deletedTask).status(201);
+  const types = await new GetTypes().get();
+
+  return res.json(types).status(201);
 });

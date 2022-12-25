@@ -12,7 +12,7 @@ export interface TaskProps {
 
 export class CreateTask {
   async create(data: TaskProps) {
-    await prisma.task.create({
+    const task: TaskProps = await prisma.task.create({
       data: {
         typeId: data.typeId,
         content: data.content,
@@ -20,5 +20,6 @@ export class CreateTask {
         type: data.type,
       },
     });
+    return task;
   }
 }

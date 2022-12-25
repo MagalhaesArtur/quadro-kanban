@@ -5,7 +5,6 @@ import { Draggable } from "react-beautiful-dnd";
 import { X } from "phosphor-react";
 import "./main.css";
 import { TaskProps, TypeProps } from "./utils/interfaces";
-import { deleteTesk } from "./utils/deleteTask";
 import HeaderType from "./components/headerType";
 
 import * as Dialog from "@radix-ui/react-dialog";
@@ -21,6 +20,8 @@ const options = {
 function App() {
   let [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
   const [i, seti] = useState(0);
+  const [x, setx] = useState(0);
+
   const [isMouseOnTask, setIsMouseOnTask] = useState(false);
   const [itemId, setItemId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
@@ -40,7 +41,7 @@ function App() {
 
   useEffect(() => {
     let aux: any = localStorage.getItem("data");
-    if (aux == null) {
+    if (aux == null || x != 0) {
       fetch("http://localhost:3333/types", options).then((res) => {
         res.json().then((data) => {
           setTypesTasks(data);
@@ -50,7 +51,7 @@ function App() {
     } else {
       setTypesTasks(JSON.parse(aux));
     }
-  }, []);
+  }, [x]);
 
   useEffect(() => {
     if (num != 0) {
@@ -174,7 +175,13 @@ function App() {
             Crie uma tarefa
           </Dialog.Title>
 
-          <CreateTaskForm />
+          <CreateTaskForm
+            setTypeTasks={setTypesTasks}
+            typeTasks={typesTasks}
+            i={i}
+            setOpenDialog={setOpenDialog}
+            seti={seti}
+          />
 
           <Dialog.Description />
           <Dialog.Close />
@@ -189,7 +196,7 @@ function App() {
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
-                    className="bg-[#D0D3D4] rounded-b-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
+                    className="bg-[#D0D3D4] overflow-y-scroll rounded-b-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
                   >
                     {type.tasks.map((item, index) => (
                       <Draggable
@@ -231,8 +238,41 @@ function App() {
                             {item.content}
                             <X
                               size={24}
-                              onClick={() => {
-                                deleteTesk(item, typesTasks, setTypesTasks);
+                              onClick={async () => {
+                                let aux: TypeProps[] = JSON.parse(
+                                  JSON.stringify(typesTasks)
+                                );
+                                fetch("http://localhost:3333/deleteTask", {
+                                  method: "DELETE",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify(item),
+                                }).then((res) => {
+                                  for (let type in aux) {
+                                    for (let task in aux[type].tasks) {
+                                      if (
+                                        aux[type].tasks[task].id === item.id
+                                      ) {
+                                        aux[type].tasks.splice(
+                                          aux[type].tasks.indexOf(
+                                            aux[type].tasks[task]
+                                          ),
+                                          1
+                                        );
+                                        console.log(aux[type].tasks);
+                                      }
+                                    }
+                                  }
+                                  setTypesTasks(aux);
+                                  localStorage.setItem(
+                                    "data",
+                                    JSON.stringify(aux)
+                                  );
+                                  res.json().then((data: any) => {
+                                    console.log(data);
+                                  });
+                                });
                               }}
                               className={
                                 isMouseOnTask && item.id == itemId
