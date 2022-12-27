@@ -8,11 +8,12 @@ export interface TaskCommentsProps {
 
 export class CreateComment {
   async create(data: TaskCommentsProps) {
-    await prisma.commentTask.create({
+    const comment: TaskCommentsProps = await prisma.commentTask.create({
       data: {
         content: data.content,
         taskId: data.taskId,
       },
     });
+    return comment;
   }
 }

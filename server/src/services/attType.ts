@@ -1,5 +1,6 @@
 import { Task } from "@prisma/client";
 import { prisma } from "../prisma";
+import { TaskProps } from "./createTask";
 
 export interface TypeProps {
   type: string;

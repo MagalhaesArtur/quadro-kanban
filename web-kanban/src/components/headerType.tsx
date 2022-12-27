@@ -15,7 +15,11 @@ function HeaderType(props: any) {
           ? "Concluído"
           : props.type.type}
       </h1>
-      <Dialog.Trigger>
+      <Dialog.Trigger
+        onFocus={() => {
+          props.setCurrentType(props.type.type);
+        }}
+      >
         <Button
           className="!border-green-[#0e5cad] !border-[2px]"
           variant="outlined"

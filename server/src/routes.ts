@@ -8,10 +8,10 @@ import { CreateType, TypeProps } from "./services/createTypeTask";
 import { GetTypes } from "./services/getTypes";
 import { AttType } from "./services/attType";
 import { DeleteTask } from "./services/deleteTask";
+import { GetComment } from "./services/getComments";
 export const routes = express.Router();
 
 routes.post("/createTask", async (req, res) => {
-  console.log(req.body);
   const { content, priority, typeId, type }: TaskProps = req.body;
   if (content.length > 300) {
     return res.status(400).json("too lange content").send();
@@ -25,12 +25,11 @@ routes.post("/createTask", async (req, res) => {
 
   const task = new CreateTask();
   const task1: any = await task.create(data);
-  console.log(task1);
 
   return res.json(task1).status(201).send();
 });
 
-routes.post("/comment", async (req, res) => {
+routes.post("/CreateComment", async (req, res) => {
   const { content, taskId }: TaskCommentsProps = req.body;
   if (content.length > 300) {
     return res.status(400).json("too lange content").send();
@@ -40,10 +39,10 @@ routes.post("/comment", async (req, res) => {
     taskId,
   };
 
-  const comment = new CreateComment();
-  comment.create(data);
+  const comment = await new CreateComment().create(data);
+  console.log(comment);
 
-  return res.status(201).send();
+  return res.json(comment).status(201).send();
 });
 routes.post("/createType", async (req, res) => {
   const { type }: TypeProps = req.body;
@@ -74,7 +73,6 @@ routes.get("/types", async (req, res) => {
 routes.post("/types", async (req, res) => {
   const data: TypeProps[] = await req.body;
   const attTypes = await new AttType().att(data);
-  console.log(attTypes, "sdas");
   return res.json(attTypes).status(201);
 });
 
@@ -85,9 +83,13 @@ routes.get("/", async (req, res) => {
 
 routes.delete("/deleteTask", async (req, res) => {
   const task: TaskProps = await req.body;
-  console.log(task);
   const deletedTask: TaskProps = await new DeleteTask().delete(task);
   const types = await new GetTypes().get();
 
   return res.json(types).status(201);
+});
+
+routes.get("/comments", async (req, res) => {
+  const comments: TaskCommentsProps[] = await new GetComment().get();
+  return res.json(comments).status(201);
 });

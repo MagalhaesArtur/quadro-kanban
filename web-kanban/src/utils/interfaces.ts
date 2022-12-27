@@ -4,6 +4,13 @@ export interface TaskProps {
   priority: number;
   type: string;
   typeId: string;
+  comments: TaskCommentsProps[];
+}
+
+export interface TaskCommentsProps {
+  id?: String;
+  content: string;
+  taskId: string;
 }
 export interface TaskCommentsProps {
   id?: String;

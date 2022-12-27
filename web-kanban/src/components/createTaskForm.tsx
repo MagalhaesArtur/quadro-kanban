@@ -12,6 +12,7 @@ function CreateTaskForm(props: {
   seti: Function;
   setOpenDialog: Function;
   setTypeTasks: Function;
+  currentType: string;
 }) {
   let [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
@@ -19,7 +20,6 @@ function CreateTaskForm(props: {
 
   const [priority, setPriority] = useState(0);
   let [typeId, setTypeId] = useState("");
-  const [type, setType] = useState("todo");
 
   function updateTask(
     content: string,
@@ -41,14 +41,13 @@ function CreateTaskForm(props: {
     };
     return options2;
   }
-  console.log(isLoading);
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
 
         for (let type1 of props.typeTasks) {
-          if (type == type1.type) {
+          if (props.currentType == type1.type) {
             typeId = type1.id;
           }
         }
@@ -56,7 +55,7 @@ function CreateTaskForm(props: {
         setIsLoading(true);
         fetch(
           "http://localhost:3333/createTask",
-          updateTask(content, priority, typeId, type)
+          updateTask(content, priority, typeId, props.currentType)
         ).then((res) => {
           res.json().then((data) => {
             setCreatedTask(data);
@@ -77,7 +76,6 @@ function CreateTaskForm(props: {
         props.seti(props.i + 1);
         setContent("");
         setPriority(Number);
-        setType("todo");
 
         // props.setOpenDialog(false);
         setTimeout(() => {
@@ -101,37 +99,6 @@ function CreateTaskForm(props: {
           }}
           placeholder="Digite a tarefa..."
         />
-      </div>
-      <div className="flex flex-col   mb-4 mt-4">
-        <label htmlFor="typeTask" className="font-semibold mb-2">
-          Selecione o tipo de tarefa
-        </label>
-        <select
-          defaultValue={"todo"}
-          value={type}
-          onChange={(e) => {
-            setType(e.target.value);
-          }}
-          name="typeTask"
-          className="bg-[#D0D3D4] py-3 px-4 rounded-lg "
-        >
-          {props.typeTasks.map((type) => {
-            if (type.type != "done") {
-              return (
-                <option
-                  className="bg-[#D0D3D4] py-3 px-4 rounded-lg"
-                  value={type.type}
-                >
-                  {type.type == "todo"
-                    ? "Para fazer"
-                    : type.type == "doing"
-                    ? "Fazendo"
-                    : type.type}
-                </option>
-              );
-            }
-          })}
-        </select>
       </div>
 
       <div className="flex flex-col   mb-4 mt-4">
