@@ -8,7 +8,7 @@ export const deleteTesk = (
 ) => {
   let aux2: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
 
-  fetch("http://localhost:3333/deleteTask", {
+  fetch(`${import.meta.env.VITE_API_URL}/deleteTask`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

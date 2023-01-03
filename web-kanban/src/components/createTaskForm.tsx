@@ -54,7 +54,7 @@ function CreateTaskForm(props: {
 
         setIsLoading(true);
         fetch(
-          "http://localhost:3333/createTask",
+          `${import.meta.env.VITE_API_URL}/createTask`,
           updateTask(content, priority, typeId, props.currentType)
         ).then((res) => {
           res.json().then((data) => {

@@ -39,17 +39,17 @@ function App() {
   const [openDialog2, setOpenDialog2] = useState(false);
 
   const [num, setNum] = useState(0);
+  console.log(itemId);
 
   useEffect(() => {
     let aux: any = localStorage.getItem("data");
-    fetch("http://localhost:3333/comments").then((res) => {
+    fetch(`${import.meta.env.VITE_API_URL}/comments`).then((res) => {
       res.json().then((data) => {
         setComments(data);
-        comments = data;
       });
     });
-    if (aux == null || x != 0) {
-      fetch("http://localhost:3333/types", options).then((res) => {
+    if (aux === null || x != 0) {
+      fetch(`${import.meta.env.VITE_API_URL}/types`, options).then((res) => {
         res.json().then(async (data) => {
           let aux: TypeProps[] = data;
           setTypesTasks(data);
@@ -61,7 +61,6 @@ function App() {
               }
             }
           }
-          console.log(aux);
           setTypesTasks(aux);
           localStorage.setItem("data", JSON.stringify(data));
         });
@@ -75,23 +74,23 @@ function App() {
     if (num != 0) {
       let aux: any = localStorage.getItem("data");
       if (aux != null) {
-        fetch("http://localhost:3333/types", updateTask(typesTasks)).then(
-          (res) => {
-            res.json().then((data) => {
-              localStorage.setItem("data", JSON.stringify(data));
-            });
-          }
-        );
+        fetch(
+          `${import.meta.env.VITE_API_URL}/types`,
+          updateTask(typesTasks)
+        ).then((res) => {
+          res.json().then((data) => {
+            localStorage.setItem("data", JSON.stringify(data));
+          });
+        });
       }
     }
   }, [i]);
-
-  console.log(currentComments);
 
   var filteredSourceType: TaskProps[] = [];
 
   // Função que faz a devida mudança nos index's das colunas
   const onDragEnd = (result: any) => {
+    setItemId(result.draggableId);
     setNum(1 + num);
     seti(1 + i);
 
@@ -223,10 +222,11 @@ function App() {
               Criar um novo comentário...
             </Dialog.Title>
             <Comments
+              setx={setx}
+              x={x}
               currentItemId={currentItemId}
               currentComments={currentComments}
               setCurrentComments={setCurrentComments}
-              setOpenDialog={setOpenDialog2}
             />
 
             <Dialog.Description />
@@ -297,13 +297,18 @@ function App() {
                                   let aux: TypeProps[] = JSON.parse(
                                     JSON.stringify(typesTasks)
                                   );
-                                  fetch("http://localhost:3333/deleteTask", {
-                                    method: "DELETE",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(item),
-                                  }).then((res) => {
+                                  fetch(
+                                    `${
+                                      import.meta.env.VITE_API_URL
+                                    }/deleteTask`,
+                                    {
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify(item),
+                                    }
+                                  ).then((res) => {
                                     // Ajustando os index's dos elementos quando são excluidos
                                     for (let type in aux) {
                                       for (let task in aux[type].tasks) {
@@ -336,7 +341,7 @@ function App() {
                             </div>
                             <Button
                               onClick={() => {
-                                setOpenDialog2(true);
+                                console.log(comments);
 
                                 let auxComments: TaskCommentsProps[] = [];
                                 for (let comment of comments) {
@@ -345,7 +350,8 @@ function App() {
                                   }
                                 }
                                 setCurrentComments(auxComments);
-                                setCurrentItemId(item.id);
+                                setCurrentItemId(itemId);
+                                setOpenDialog2(true);
                               }}
                               className="!rounded-full  !min-w-[0px] !p-2 "
                               variant="outlined"

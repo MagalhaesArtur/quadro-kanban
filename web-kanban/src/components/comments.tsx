@@ -8,11 +8,12 @@ function Comments(props: {
   currentComments: TaskCommentsProps[];
   setCurrentComments: Function;
   currentItemId: string;
-  setOpenDialog: Function;
+  setx: Function;
+  x: number;
 }) {
   let [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
-
+  console.log(props.currentComments);
   return (
     <div className="flex flex-col">
       <form
@@ -20,7 +21,7 @@ function Comments(props: {
           setIsLoading(true);
           e.preventDefault();
           fetch(
-            "http://localhost:3333/CreateComment",
+            `${import.meta.env.VITE_API_URL}/CreateComment`,
             CreateComment(content, props.currentItemId)
           ).then((res) => {
             res.json().then((data) => {
@@ -30,10 +31,11 @@ function Comments(props: {
             });
           });
           setTimeout(() => {
-            alert("Tarefa Criada com Sucesso!");
+            alert("Comentário Criado com Sucesso!");
             setIsLoading(false);
-            props.setOpenDialog(false);
           }, 500);
+          setContent("");
+          props.setx(props.x + 1);
         }}
       >
         <div className="flex flex-col justify-center mb-4">
