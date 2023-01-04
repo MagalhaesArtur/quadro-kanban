@@ -13,6 +13,7 @@ function CreateTaskForm(props: {
   setOpenDialog: Function;
   setTypeTasks: Function;
   currentType: string;
+  setLoading: Function;
 }) {
   let [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
@@ -44,6 +45,7 @@ function CreateTaskForm(props: {
   return (
     <form
       onSubmit={(e) => {
+        props.setLoading(true);
         e.preventDefault();
 
         for (let type1 of props.typeTasks) {
@@ -70,6 +72,7 @@ function CreateTaskForm(props: {
 
             props.setTypeTasks(aux2);
             localStorage.setItem("data", JSON.stringify(aux2));
+            props.setLoading(false);
           });
         });
 

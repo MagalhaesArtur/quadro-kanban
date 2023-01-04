@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Droppable } from "react-beautiful-dnd";
 import { Draggable } from "react-beautiful-dnd";
-import { ChatText, X } from "phosphor-react";
+import { ChatText, CircleNotch, X } from "phosphor-react";
 import Button from "@mui/material/Button";
 
 import "./main.css";
@@ -12,7 +12,6 @@ import HeaderType from "./components/headerType";
 import * as Dialog from "@radix-ui/react-dialog";
 import CreateTaskForm from "./components/createTaskForm";
 import { updateTask } from "./utils/updateTaskFetchParams";
-import { FocusTrap } from "@mui/base";
 import Comments from "./components/comments";
 
 const options = {
@@ -24,6 +23,7 @@ const options = {
 
 function App() {
   let [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
+  const [loading, setLoading] = useState(false);
   let [comments, setComments] = useState(Array<TaskCommentsProps>);
   let [currentComments, setCurrentComments] = useState(
     Array<TaskCommentsProps>
@@ -72,6 +72,7 @@ function App() {
 
   useEffect(() => {
     if (num != 0) {
+      setLoading(true);
       let aux: any = localStorage.getItem("data");
       if (aux != null) {
         fetch(
@@ -80,6 +81,7 @@ function App() {
         ).then((res) => {
           res.json().then((data) => {
             localStorage.setItem("data", JSON.stringify(data));
+            setLoading(false);
           });
         });
       }
@@ -196,6 +198,7 @@ function App() {
           </Dialog.Title>
 
           <CreateTaskForm
+            setLoading={setLoading}
             setTypeTasks={setTypesTasks}
             typeTasks={typesTasks}
             i={i}
@@ -224,6 +227,8 @@ function App() {
             <Comments
               setx={setx}
               x={x}
+              setLoading={setLoading}
+              loading={loading}
               currentItemId={currentItemId}
               currentComments={currentComments}
               setCurrentComments={setCurrentComments}
@@ -235,7 +240,15 @@ function App() {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <div className="flex justify-center gap-9" id="main">
+      <div className="flex relative justify-center gap-9" id="main">
+        {loading ? (
+          <CircleNotch
+            size={60}
+            weight="bold"
+            className="text-white z-50 absolute top-4 right-4 animate-spin"
+          />
+        ) : null}
+
         <DragDropContext onDragEnd={onDragEnd}>
           {typesTasks.map((type) => (
             <div key={type.id}>
@@ -341,8 +354,6 @@ function App() {
                             </div>
                             <Button
                               onClick={() => {
-                                console.log(comments);
-
                                 let auxComments: TaskCommentsProps[] = [];
                                 for (let comment of comments) {
                                   if (comment.taskId == item.id) {

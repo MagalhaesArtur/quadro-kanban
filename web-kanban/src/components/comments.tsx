@@ -10,6 +10,8 @@ function Comments(props: {
   currentItemId: string;
   setx: Function;
   x: number;
+  setLoading: Function;
+  loading: boolean;
 }) {
   let [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
@@ -18,6 +20,7 @@ function Comments(props: {
     <div className="flex flex-col">
       <form
         onSubmit={(e) => {
+          props.setLoading(true);
           setIsLoading(true);
           e.preventDefault();
           fetch(
@@ -28,6 +31,7 @@ function Comments(props: {
               let aux: any[] = [...props.currentComments];
               aux.push(data);
               props.setCurrentComments(aux);
+              props.setLoading(false);
             });
           });
           setTimeout(() => {
