@@ -6,7 +6,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://quadro-kanban-production.up.railway.app/",
   })
 );
 app.use(express.json());
