@@ -8,12 +8,7 @@ export interface TaskProps {
 }
 
 export interface TaskCommentsProps {
-  id?: String;
-  content: string;
-  taskId: string;
-}
-export interface TaskCommentsProps {
-  id?: String;
+  id: string;
   content: string;
   taskId: string;
 }

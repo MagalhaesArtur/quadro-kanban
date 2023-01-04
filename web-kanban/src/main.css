@@ -9,6 +9,32 @@
   background-image: linear-gradient(135deg, #79f1a4 10%, #0e5cad 100%);
 }
 
+#comment {
+  transition-duration: 750ms !important;
+}
+
+#main2 {
+  width: 100vw;
+  height: 100vh;
+
+  padding-top: 100px;
+  background: #000000; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #434343,
+    #000000
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #434343,
+    #000000
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+#themeSwitch {
+  transition-duration: 1500ms !important;
+}
+
 /* Works on Firefox */
 * {
   scrollbar-width: thin;

@@ -3,12 +3,11 @@ import { TaskProps } from "./createTask";
 
 export class DeleteTask {
   async delete(task: TaskProps) {
-    const deletedTask: TaskProps = await prisma.task.delete({
+    let id = task.id;
+    await prisma.task.delete({
       where: {
-        id: task.id,
+        id,
       },
     });
-
-    return deletedTask;
   }
 }

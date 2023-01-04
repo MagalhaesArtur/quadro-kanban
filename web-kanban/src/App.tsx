@@ -13,6 +13,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import CreateTaskForm from "./components/createTaskForm";
 import { updateTask } from "./utils/updateTaskFetchParams";
 import Comments from "./components/comments";
+import { SwitchTheme } from "./components/SwitchTheme";
 
 const options = {
   method: "GET",
@@ -22,6 +23,7 @@ const options = {
 };
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   let [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
   const [loading, setLoading] = useState(false);
   let [comments, setComments] = useState(Array<TaskCommentsProps>);
@@ -39,7 +41,6 @@ function App() {
   const [openDialog2, setOpenDialog2] = useState(false);
 
   const [num, setNum] = useState(0);
-  console.log(itemId);
 
   useEffect(() => {
     let aux: any = localStorage.getItem("data");
@@ -227,6 +228,8 @@ function App() {
             <Comments
               setx={setx}
               x={x}
+              setComments={setComments}
+              comments={comments}
               setLoading={setLoading}
               loading={loading}
               currentItemId={currentItemId}
@@ -240,7 +243,10 @@ function App() {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <div className="flex relative justify-center gap-9" id="main">
+      <div
+        className="flex relative transition-all justify-center gap-9"
+        id={isDarkMode ? "main2" : "main"}
+      >
         {loading ? (
           <CircleNotch
             size={60}
@@ -248,6 +254,8 @@ function App() {
             className="text-white z-50 absolute top-4 right-4 animate-spin"
           />
         ) : null}
+
+        <SwitchTheme isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
         <DragDropContext onDragEnd={onDragEnd}>
           {typesTasks.map((type) => (
@@ -283,6 +291,7 @@ function App() {
                             onMouseLeave={() => {
                               setIsMouseOnTask(false);
                             }}
+                            id="comment"
                             className={`w-[100%] h-18 flex flex-col justify-between border-l-[5px]  items-start ${
                               item.priority == 0
                                 ? "border-blue-600"
@@ -291,7 +300,11 @@ function App() {
                                 : item.priority == 2
                                 ? "border-red-600"
                                 : null
-                            } text-slate-700 text-lg font-medium my-1 bg-white p-3 rounded-lg shadow-lg`}
+                            }  text-lg font-medium my-1  p-3 rounded-lg transition-colors shadow-lg ${
+                              !isDarkMode
+                                ? "bg-white text-slate-700"
+                                : "bg-gray-900 text-white"
+                            }`}
                             title={`${
                               item.priority == 0
                                 ? "Prioridade: Fazer sem pressa"
@@ -307,13 +320,11 @@ function App() {
                               <X
                                 size={24}
                                 onClick={async () => {
-                                  let aux: TypeProps[] = JSON.parse(
-                                    JSON.stringify(typesTasks)
-                                  );
+                                  setLoading(true);
                                   fetch(
                                     `${
                                       import.meta.env.VITE_API_URL
-                                    }/deleteTask`,
+                                    }/deleteManyComments`,
                                     {
                                       method: "DELETE",
                                       headers: {
@@ -321,28 +332,46 @@ function App() {
                                       },
                                       body: JSON.stringify(item),
                                     }
-                                  ).then((res) => {
-                                    // Ajustando os index's dos elementos quando são excluidos
-                                    for (let type in aux) {
-                                      for (let task in aux[type].tasks) {
-                                        if (
-                                          aux[type].tasks[task].id === item.id
-                                        ) {
-                                          aux[type].tasks.splice(
-                                            aux[type].tasks.indexOf(
-                                              aux[type].tasks[task]
-                                            ),
-                                            1
-                                          );
+                                  ).then(() => {
+                                    fetch(
+                                      `${
+                                        import.meta.env.VITE_API_URL
+                                      }/deleteTask`,
+                                      {
+                                        method: "DELETE",
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(item),
+                                      }
+                                    ).then((res) => {
+                                      // Ajustando os index's dos elementos quando são excluidos
+                                      for (let type in aux) {
+                                        for (let task in aux[type].tasks) {
+                                          if (
+                                            aux[type].tasks[task].id === item.id
+                                          ) {
+                                            aux[type].tasks.splice(
+                                              aux[type].tasks.indexOf(
+                                                aux[type].tasks[task]
+                                              ),
+                                              1
+                                            );
+                                          }
                                         }
                                       }
-                                    }
-                                    setTypesTasks(aux);
-                                    localStorage.setItem(
-                                      "data",
-                                      JSON.stringify(aux)
-                                    );
+                                      setTypesTasks(aux);
+                                      localStorage.setItem(
+                                        "data",
+                                        JSON.stringify(aux)
+                                      );
+                                      setLoading(false);
+                                    });
                                   });
+                                  console.log(JSON.stringify(item.id));
+                                  let aux: TypeProps[] = JSON.parse(
+                                    JSON.stringify(typesTasks)
+                                  );
                                 }}
                                 className={
                                   isMouseOnTask && item.id == itemId
@@ -367,7 +396,10 @@ function App() {
                               className="!rounded-full  !min-w-[0px] !p-2 "
                               variant="outlined"
                             >
-                              <ChatText size={16} color="#7c7584" />
+                              <ChatText
+                                size={16}
+                                color={`${!isDarkMode ? "#7c7584" : "white"} `}
+                              />
                             </Button>
                           </div>
                         )}

@@ -9,6 +9,7 @@ import { GetTypes } from "./services/getTypes";
 import { AttType } from "./services/attType";
 import { DeleteTask } from "./services/deleteTask";
 import { GetComment } from "./services/getComments";
+import { DeleteComment } from "./services/deleteComment";
 export const routes = express.Router();
 
 routes.post("/createTask", async (req, res) => {
@@ -44,6 +45,24 @@ routes.post("/CreateComment", async (req, res) => {
 
   return res.json(comment).status(201).send();
 });
+
+routes.delete("/deleteComment", async (req, res) => {
+  const comment: TaskProps = await req.body;
+  await new DeleteComment().delete(comment);
+  const comments = await new GetComment().get();
+
+  return res.json(comments).status(201);
+});
+
+routes.delete("/deleteManyComments", async (req, res) => {
+  const task: TaskProps = await req.body;
+  console.log(task);
+  await new DeleteComment().deleteMany(task);
+  const comments = await new GetComment().get();
+
+  return res.json(comments).status(201);
+});
+
 routes.post("/createType", async (req, res) => {
   const { type }: TypeProps = req.body;
   if (type.length > 300) {
@@ -83,7 +102,7 @@ routes.get("/", async (req, res) => {
 
 routes.delete("/deleteTask", async (req, res) => {
   const task: TaskProps = await req.body;
-  const deletedTask: TaskProps = await new DeleteTask().delete(task);
+  await new DeleteTask().delete(task);
   const types = await new GetTypes().get();
 
   return res.json(types).status(201);
