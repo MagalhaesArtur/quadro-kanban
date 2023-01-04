@@ -32,6 +32,7 @@ function Comments(props: {
               aux.push(data);
               props.setCurrentComments(aux);
               props.setLoading(false);
+              props.setx(props.x + 1);
             });
           });
           setTimeout(() => {
@@ -39,7 +40,6 @@ function Comments(props: {
             setIsLoading(false);
           }, 500);
           setContent("");
-          props.setx(props.x + 1);
         }}
       >
         <div className="flex flex-col justify-center mb-4">
