@@ -253,99 +253,92 @@ function App() {
       </Dialog.Root>
 
       <div
-        className="flex relative transition-all justify-center gap-9"
+        className=" relative flex justify-center  transition-all  "
         id={isDarkMode ? "main2" : "main"}
       >
-        {loading ? (
-          <CircleNotch
-            size={60}
-            weight="bold"
-            className="text-white z-50 absolute top-4 right-4 animate-spin"
-          />
-        ) : null}
+        <div
+          id="mainBoxComment"
+          className="md:max-w-[90%] sm:overflow-y-scroll md:overflow-y-hidden  sm:flex-col  md:flex md:!flex-row  md:gap-9 justify-center  xl:min-w-full"
+        >
+          {loading ? (
+            <CircleNotch
+              size={60}
+              weight="bold"
+              className="text-white z-50 absolute top-4 right-4 animate-spin"
+            />
+          ) : null}
 
-        <SwitchTheme isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+          <SwitchTheme isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
-        <DragDropContext onDragEnd={onDragEnd}>
-          {typesTasks.map((type) => (
-            <div key={type.id}>
-              <HeaderType
-                setCurrentType={setCurrentType}
-                type={type}
-              ></HeaderType>
-              <Droppable droppableId={type.id} key={type.id}>
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    onMouseEnter={() => {
-                      setCurrentType(type.type);
-                    }}
-                    className="bg-[#D0D3D4] overflow-y-scroll rounded-b-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3 w-80 h-[400px]"
-                  >
-                    {type.tasks.map((item, index) => (
-                      <Draggable
-                        draggableId={item.id}
-                        index={index}
-                        key={item.id}
-                      >
-                        {(provided) => (
-                          <div
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                            ref={provided.innerRef}
-                            onMouseEnter={() => {
-                              setItemId(item.id);
-                              setIsMouseOnTask(true);
-                            }}
-                            onMouseLeave={() => {
-                              setIsMouseOnTask(false);
-                            }}
-                            id="comment"
-                            className={`w-[100%] h-18 flex flex-col justify-between border-l-[5px]  items-start ${
-                              item.priority == 0
-                                ? "border-blue-600"
-                                : item.priority == 1
-                                ? "border-orange-400"
-                                : item.priority == 2
-                                ? "border-red-600"
-                                : null
-                            }  text-lg font-medium my-1  p-3 rounded-lg transition-colors shadow-lg ${
-                              !isDarkMode
-                                ? "bg-white text-slate-700"
-                                : "bg-gray-900 text-white"
-                            }`}
-                            title={`${
-                              item.priority == 0
-                                ? "Prioridade: Fazer sem pressa"
-                                : item.priority == 1
-                                ? "Prioridade: Não atrasar"
-                                : item.priority == 2
-                                ? "Prioridade: Urgente"
-                                : null
-                            }`}
-                          >
-                            <div className="w-[100%] h-18 mb-2 flex justify-between  items-center">
-                              <h1>{item.content}</h1>
-                              <X
-                                size={24}
-                                onClick={async () => {
-                                  setLoading(true);
-                                  fetch(
-                                    `${
-                                      import.meta.env.VITE_API_URL
-                                    }/deleteManyComments`,
-                                    {
-                                      method: "DELETE",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                      },
-                                      body: JSON.stringify(item),
-                                    }
-                                  ).then(() => {
+          <DragDropContext onDragEnd={onDragEnd}>
+            {typesTasks.map((type) => (
+              <div key={type.id} className="sm:min-h-[180px]">
+                <HeaderType
+                  setCurrentType={setCurrentType}
+                  type={type}
+                ></HeaderType>
+                <Droppable droppableId={type.id} key={type.id}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      onMouseEnter={() => {
+                        setCurrentType(type.type);
+                      }}
+                      id="boxComment"
+                      className="bg-[#D0D3D4] overflow-y-scroll rounded-b-lg shadow-md items-start flex flex-col  pb-7 px-4 pt-3  md:w-48 lg:w-64 xl:w-80  md:!h-[400px]"
+                    >
+                      {type.tasks.map((item, index) => (
+                        <Draggable
+                          draggableId={item.id}
+                          index={index}
+                          key={item.id}
+                        >
+                          {(provided) => (
+                            <div
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                              ref={provided.innerRef}
+                              onMouseEnter={() => {
+                                setItemId(item.id);
+                                setIsMouseOnTask(true);
+                              }}
+                              onMouseLeave={() => {
+                                setIsMouseOnTask(false);
+                              }}
+                              id="comment"
+                              className={`w-[100%]  h-18 flex flex-col justify-between border-l-[5px]  items-start ${
+                                item.priority == 0
+                                  ? "border-blue-600"
+                                  : item.priority == 1
+                                  ? "border-orange-400"
+                                  : item.priority == 2
+                                  ? "border-red-600"
+                                  : null
+                              }  text-lg font-medium my-1  p-3 rounded-lg transition-colors shadow-lg ${
+                                !isDarkMode
+                                  ? "bg-white text-slate-700"
+                                  : "bg-gray-900 text-white"
+                              }`}
+                              title={`${
+                                item.priority == 0
+                                  ? "Prioridade: Fazer sem pressa"
+                                  : item.priority == 1
+                                  ? "Prioridade: Não atrasar"
+                                  : item.priority == 2
+                                  ? "Prioridade: Urgente"
+                                  : null
+                              }`}
+                            >
+                              <div className="w-[100%] h-18 mb-2 flex justify-between  items-center">
+                                <h1>{item.content}</h1>
+                                <X
+                                  size={24}
+                                  onClick={async () => {
+                                    setLoading(true);
                                     fetch(
                                       `${
                                         import.meta.env.VITE_API_URL
-                                      }/deleteTask`,
+                                      }/deleteManyComments`,
                                       {
                                         method: "DELETE",
                                         headers: {
@@ -353,73 +346,89 @@ function App() {
                                         },
                                         body: JSON.stringify(item),
                                       }
-                                    ).then((res) => {
-                                      // Ajustando os index's dos elementos quando são excluidos
-                                      for (let type in aux) {
-                                        for (let task in aux[type].tasks) {
-                                          if (
-                                            aux[type].tasks[task].id === item.id
-                                          ) {
-                                            aux[type].tasks.splice(
-                                              aux[type].tasks.indexOf(
-                                                aux[type].tasks[task]
-                                              ),
-                                              1
-                                            );
+                                    ).then(() => {
+                                      fetch(
+                                        `${
+                                          import.meta.env.VITE_API_URL
+                                        }/deleteTask`,
+                                        {
+                                          method: "DELETE",
+                                          headers: {
+                                            "Content-Type": "application/json",
+                                          },
+                                          body: JSON.stringify(item),
+                                        }
+                                      ).then((res) => {
+                                        // Ajustando os index's dos elementos quando são excluidos
+                                        for (let type in aux) {
+                                          for (let task in aux[type].tasks) {
+                                            if (
+                                              aux[type].tasks[task].id ===
+                                              item.id
+                                            ) {
+                                              aux[type].tasks.splice(
+                                                aux[type].tasks.indexOf(
+                                                  aux[type].tasks[task]
+                                                ),
+                                                1
+                                              );
+                                            }
                                           }
                                         }
-                                      }
-                                      setTypesTasks(aux);
-                                      localStorage.setItem(
-                                        "data",
-                                        JSON.stringify(aux)
-                                      );
-                                      setLoading(false);
+                                        setTypesTasks(aux);
+                                        localStorage.setItem(
+                                          "data",
+                                          JSON.stringify(aux)
+                                        );
+                                        setLoading(false);
+                                      });
                                     });
-                                  });
-                                  let aux: TypeProps[] = JSON.parse(
-                                    JSON.stringify(typesTasks)
-                                  );
-                                }}
-                                className={
-                                  isMouseOnTask && item.id == itemId
-                                    ? `text-red-500 transition-all z-10 cursor-pointer`
-                                    : "text-transparent  transition-all z-10 cursor-pointer"
-                                }
-                                weight="bold"
-                              />
-                            </div>
-                            <Button
-                              onClick={() => {
-                                let auxComments: TaskCommentsProps[] = [];
-                                for (let comment of comments) {
-                                  if (comment.taskId == item.id) {
-                                    auxComments.push(comment);
+                                    let aux: TypeProps[] = JSON.parse(
+                                      JSON.stringify(typesTasks)
+                                    );
+                                  }}
+                                  className={
+                                    isMouseOnTask && item.id == itemId
+                                      ? `text-red-500 transition-all z-10 cursor-pointer`
+                                      : "text-transparent  transition-all z-10 cursor-pointer"
                                   }
-                                }
-                                setCurrentComments(auxComments);
-                                setCurrentItemId(itemId);
-                                setOpenDialog2(true);
-                              }}
-                              className="!rounded-full  !min-w-[0px] !p-2 "
-                              variant="outlined"
-                            >
-                              <ChatText
-                                size={16}
-                                color={`${!isDarkMode ? "#7c7584" : "white"} `}
-                              />
-                            </Button>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          ))}
-        </DragDropContext>
+                                  weight="bold"
+                                />
+                              </div>
+                              <Button
+                                onClick={() => {
+                                  let auxComments: TaskCommentsProps[] = [];
+                                  for (let comment of comments) {
+                                    if (comment.taskId == item.id) {
+                                      auxComments.push(comment);
+                                    }
+                                  }
+                                  setCurrentComments(auxComments);
+                                  setCurrentItemId(itemId);
+                                  setOpenDialog2(true);
+                                }}
+                                className="!rounded-full  !min-w-[0px] !p-2 "
+                                variant="outlined"
+                              >
+                                <ChatText
+                                  size={16}
+                                  color={`${
+                                    !isDarkMode ? "#7c7584" : "white"
+                                  } `}
+                                />
+                              </Button>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            ))}
+          </DragDropContext>
+        </div>
       </div>
     </Dialog.Root>
   );

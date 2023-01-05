@@ -5,8 +5,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 
 function HeaderType(props: any) {
   return (
-    <div className="flex justify-between bg-[#D0D3D4] font-bold rounded-t-lg p-3">
-      <h1 className="text-2xl  text-slate-700">
+    <div className="flex justify-between md:w-48 lg:w-64 xl:w-80 bg-[#D0D3D4] font-bold rounded-t-lg p-3">
+      <h1 className="sm:text-lg  md:text-xl  text-slate-700">
         {props.type.type == "todo"
           ? "Para fazer"
           : props.type.type == "doing"

@@ -13,6 +13,13 @@
   transition-duration: 750ms !important;
 }
 
+@media (max-width: 430px) {
+  #main,
+  #main2 {
+    overflow-y: scroll;
+  }
+}
+
 #main2 {
   width: 100vw;
   height: 100vh;
@@ -29,6 +36,20 @@
     #434343,
     #000000
   ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+@media (min-width: 400px) {
+  #boxComment {
+    height: 180px;
+  }
+}
+
+@media (min-width: 400px) {
+  #mainBoxComment {
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 #themeSwitch {
