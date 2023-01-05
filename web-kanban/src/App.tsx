@@ -23,6 +23,9 @@ const options = {
 };
 
 function App() {
+  let [TasksAux, setTasksAux] = useState(Array<TaskProps>);
+  const [currentTask, setCurrentTask] = useState(Object);
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   let [typesTasks, setTypesTasks] = useState(Array<TypeProps>);
   const [loading, setLoading] = useState(false);
@@ -41,6 +44,66 @@ function App() {
   const [openDialog2, setOpenDialog2] = useState(false);
 
   const [num, setNum] = useState(0);
+  console.log(num);
+
+  useEffect(() => {
+    let types = localStorage.getItem("data");
+
+    if (num == 0 && types != null) {
+      let aux: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
+
+      for (let type in aux) {
+        if (currentTask.typeId == aux[type].id) {
+          aux[type].tasks.push(currentTask);
+        }
+      }
+      setTypesTasks(aux);
+      console.log(aux, "asdasd");
+
+      // localStorage.setItem("data", JSON.stringify(aux));
+    }
+  }, [currentTask]);
+
+  useEffect(() => {
+    let types = localStorage.getItem("data");
+
+    if (num == 0 && types != null) {
+      fetch(`${import.meta.env.VITE_API_URL}/`, options).then((res) => {
+        res.json().then((data: TaskProps[]) => {
+          let aux: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
+          for (let type in aux) {
+            for (let task in aux[type].tasks) {
+              for (let task1 of data) {
+                if (
+                  aux[type].tasks[task].id == task1.id &&
+                  aux[type].tasks[task].typeId != task1.typeId
+                ) {
+                  setCurrentTask(task1);
+
+                  aux[type].tasks[task].typeId = task1.typeId;
+                  aux[type].tasks[task].type = task1.type;
+
+                  aux[type].tasks.splice(
+                    aux[type].tasks.indexOf(aux[type].tasks[task]),
+                    1
+                  );
+
+                  setTypesTasks(aux);
+                  localStorage.setItem("data", JSON.stringify(aux));
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+  }, [
+    () => {
+      document.addEventListener("reset", () => {
+        return true;
+      });
+    },
+  ]);
 
   useEffect(() => {
     let aux: any = localStorage.getItem("data");
@@ -360,6 +423,9 @@ function App() {
                                         }
                                       ).then((res) => {
                                         // Ajustando os index's dos elementos quando são excluidos
+                                        let aux: TypeProps[] = JSON.parse(
+                                          JSON.stringify(typesTasks)
+                                        );
                                         for (let type in aux) {
                                           for (let task in aux[type].tasks) {
                                             if (
@@ -383,9 +449,6 @@ function App() {
                                         setLoading(false);
                                       });
                                     });
-                                    let aux: TypeProps[] = JSON.parse(
-                                      JSON.stringify(typesTasks)
-                                    );
                                   }}
                                   className={
                                     isMouseOnTask && item.id == itemId
