@@ -258,7 +258,7 @@ function App() {
       >
         <div
           id="mainBoxComment"
-          className="md:max-w-[90%] sm:overflow-y-scroll md:overflow-y-hidden  sm:flex-col  md:flex md:!flex-row  md:gap-9 justify-center  xl:min-w-full"
+          className="md:max-w-[90%] md:overflow-y-hidden   md:flex md:!flex-row  md:gap-9 justify-center  xl:min-w-full"
         >
           {loading ? (
             <CircleNotch
