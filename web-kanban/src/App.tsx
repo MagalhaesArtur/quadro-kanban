@@ -221,11 +221,20 @@ function App() {
             }}
             className="bg-black/60 inset-0 fixed"
           />
-          <Dialog.Content className="fixed  bg-white text-slate-700 py-8 px-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  rounded-lg w-[600px] shadow-lg shadow-black/40">
-            <Dialog.Title className="text-xl mb-4  font-black">
+          <Dialog.Content
+            className={`fixed  bg-white text-slate-700 py-8 px-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  rounded-lg w-[600px] shadow-lg shadow-black/40 ${
+              isDarkMode ? "bg-gray-900" : "bg-white"
+            }`}
+          >
+            <Dialog.Title
+              className={`text-xl mb-4 ${
+                isDarkMode ? "text-slate-300" : "text-gray-900"
+              }  font-black`}
+            >
               Criar um novo comentário...
             </Dialog.Title>
             <Comments
+              isDarkMode={isDarkMode}
               setx={setx}
               x={x}
               setComments={setComments}
@@ -368,7 +377,6 @@ function App() {
                                       setLoading(false);
                                     });
                                   });
-                                  console.log(JSON.stringify(item.id));
                                   let aux: TypeProps[] = JSON.parse(
                                     JSON.stringify(typesTasks)
                                   );

@@ -8,6 +8,7 @@ import { X } from "phosphor-react";
 function Comments(props: {
   currentComments: TaskCommentsProps[];
   comments: TaskCommentsProps[];
+  isDarkMode: boolean;
   setComments: Function;
   setCurrentComments: Function;
   currentItemId: string;
@@ -23,7 +24,6 @@ function Comments(props: {
   const [x, setx] = useState(0);
 
   const [currentComment, setCurrentComment] = useState("");
-  console.log(props.currentComments, currentComment);
   return (
     <div className="flex flex-col">
       <form
@@ -51,12 +51,22 @@ function Comments(props: {
         }}
       >
         <div className="flex flex-col justify-center mb-4">
-          <label htmlFor="nick" className="font-semibold mb-2">
+          <label
+            htmlFor="nick"
+            className={`font-semibold ${
+              props.isDarkMode ? "text-slate-300" : "text-gray-900"
+            }  mb-2`}
+          >
             Conteúdo do comentário
           </label>
           <input
             name="nick"
-            className="bg-[#D0D3D4] py-3 px-4 border-zinc-500 placeholder:text-zinc-500 text-[14px] rounded-lg"
+            className={`bg-[#D0D3D4] py-3 border-2 focus:border-[#79f1a4] transition-all outline-none 
+             px-4 ${
+               props.isDarkMode
+                 ? "focus:border-[#79f1a4]"
+                 : "focus:border-zinc-900"
+             } placeholder:text-zinc-500 text-[14px] rounded-lg`}
             id="nick"
             value={content}
             onChange={(e) => {
@@ -88,7 +98,7 @@ function Comments(props: {
       </form>
 
       <div className="bg-[#D0D3D4] overflow-y-scroll max-h-[500px] rounded-xl p-4 m-auto w-full">
-        <h1 className="text-2xl text-slate-700">Comentários</h1>
+        <h1 className={"text-2xl text-slate-700"}>Comentários</h1>
         <div className="mt-4 ">
           {props.currentComments.map((comment: TaskCommentsProps) => (
             <div
@@ -98,7 +108,11 @@ function Comments(props: {
               onFocus={() => {
                 setCurrentComment(comment.id);
               }}
-              className="p-4 flex justify-between mb-3 rounded-lg bg-white"
+              className={`p-4 flex justify-between mb-3 transition-all rounded-lg  ${
+                props.isDarkMode
+                  ? "bg-slate-900 text-slate-300"
+                  : "bg-white text-slate-900"
+              }`}
             >
               {comment.content}
 
@@ -106,7 +120,6 @@ function Comments(props: {
                 size={24}
                 onClick={async () => {
                   props.setLoading(true);
-                  console.log(comment);
                   let aux: TaskCommentsProps[] = JSON.parse(
                     JSON.stringify(props.comments)
                   );
@@ -133,7 +146,6 @@ function Comments(props: {
                     }
                     props.setComments(aux);
                     props.setCurrentComments(aux2);
-                    console.log(aux2);
 
                     props.setLoading(false);
                   });
