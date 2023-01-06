@@ -14,6 +14,7 @@ import CreateTaskForm from "./components/createTaskForm";
 import { updateTask } from "./utils/updateTaskFetchParams";
 import Comments from "./components/comments";
 import { SwitchTheme } from "./components/SwitchTheme";
+import { isTaskInArray } from "./utils/isTaskInArray";
 
 const options = {
   method: "GET",
@@ -23,7 +24,7 @@ const options = {
 };
 
 function App() {
-  let [TasksAux, setTasksAux] = useState(Array<TaskProps>);
+  let [TasksAux, setTasksAux] = useState(Object);
   const [currentTask, setCurrentTask] = useState(Object);
 
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -44,23 +45,22 @@ function App() {
   const [openDialog2, setOpenDialog2] = useState(false);
 
   const [num, setNum] = useState(0);
-  console.log(num);
 
   useEffect(() => {
     let types = localStorage.getItem("data");
 
     if (num == 0 && types != null) {
-      let aux: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
-
+      let string: any = localStorage.getItem("data");
+      let aux: TypeProps[] = JSON.parse(string);
+      console.log(aux);
       for (let type in aux) {
         if (currentTask.typeId == aux[type].id) {
           aux[type].tasks.push(currentTask);
         }
       }
       setTypesTasks(aux);
-      console.log(aux, "asdasd");
 
-      // localStorage.setItem("data", JSON.stringify(aux));
+      localStorage.setItem("data", JSON.stringify(aux));
     }
   }, [currentTask]);
 
@@ -69,40 +69,59 @@ function App() {
 
     if (num == 0 && types != null) {
       fetch(`${import.meta.env.VITE_API_URL}/`, options).then((res) => {
-        res.json().then((data: TaskProps[]) => {
-          let aux: TypeProps[] = JSON.parse(JSON.stringify(typesTasks));
-          for (let type in aux) {
-            for (let task in aux[type].tasks) {
-              for (let task1 of data) {
-                if (
-                  aux[type].tasks[task].id == task1.id &&
-                  aux[type].tasks[task].typeId != task1.typeId
-                ) {
-                  setCurrentTask(task1);
+        res
+          .json()
+          .then((data: TaskProps[]) => {
+            let string: any = localStorage.getItem("data");
+            let aux: TypeProps[] = JSON.parse(string);
+            console.log(data);
 
-                  aux[type].tasks[task].typeId = task1.typeId;
-                  aux[type].tasks[task].type = task1.type;
+            for (let type in aux) {
+              for (let task in aux[type].tasks) {
+                for (let task1 of data) {
+                  if (
+                    aux[type].tasks[task].id == task1.id &&
+                    aux[type].tasks[task].typeId != task1.typeId
+                  ) {
+                    aux[type].tasks[task].typeId = task1.typeId;
+                    aux[type].tasks[task].type = task1.type;
 
-                  aux[type].tasks.splice(
-                    aux[type].tasks.indexOf(aux[type].tasks[task]),
-                    1
-                  );
+                    aux[type].tasks.splice(
+                      aux[type].tasks.indexOf(aux[type].tasks[task]),
+                      1
+                    );
 
-                  setTypesTasks(aux);
-                  localStorage.setItem("data", JSON.stringify(aux));
+                    setTypesTasks(aux);
+                    localStorage.setItem("data", JSON.stringify(aux));
+                    setCurrentTask(task1);
+                  }
                 }
               }
             }
-          }
-        });
+          })
+          .then(() => {
+            let types = localStorage.getItem("data");
+
+            if (num == 0 && types != null) {
+              fetch(`${import.meta.env.VITE_API_URL}/`, options).then((res) => {
+                res.json().then((data: TaskProps[]) => {
+                  let string: any = localStorage.getItem("data");
+                  let aux: TypeProps[] = JSON.parse(string);
+                  setTypesTasks(isTaskInArray(data, aux));
+                  // localStorage.setItem(
+                  //   "data",
+                  //   JSON.stringify(isTaskInArray(data, aux))
+                  // );
+                });
+              });
+            }
+          });
       });
     }
   }, [
-    () => {
-      document.addEventListener("reset", () => {
-        return true;
-      });
-    },
+    document.addEventListener("reset", () => {
+      return true;
+    }),
   ]);
 
   useEffect(() => {
