@@ -104,22 +104,22 @@ function App() {
                 res.json().then((data: TaskProps[]) => {
                   let string: any = localStorage.getItem("data");
                   let aux: TypeProps[] = JSON.parse(string);
-                  setTypesTasks(isTaskInArray(data, aux));
-                  localStorage.setItem(
-                    "data",
-                    JSON.stringify(isTaskInArray(data, aux))
+
+                  let typesAux: TypeProps[] = isTaskInArray(
+                    data,
+                    setNum,
+                    num,
+                    aux
                   );
+                  setTypesTasks(typesAux);
+                  localStorage.setItem("data", JSON.stringify(typesAux));
                 });
               });
             }
           });
       });
     }
-  }, [
-    document.addEventListener("reset", () => {
-      return true;
-    }),
-  ]);
+  }, []);
 
   useEffect(() => {
     let aux: any = localStorage.getItem("data");

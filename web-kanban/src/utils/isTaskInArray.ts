@@ -1,41 +1,9 @@
 import { TaskProps, TypeProps } from "./interfaces";
-function shallowEqual(objA: any, objB: any) {
-  // P1
-  if (Object.is(objA, objB)) {
-    return true;
-  }
 
-  // P2
-  if (
-    typeof objA !== "object" ||
-    objA === null ||
-    typeof objB !== "object" ||
-    objB === null
-  ) {
-    return false;
-  }
-
-  // P3
-  var keysA = Object.keys(objA);
-  var keysB = Object.keys(objB);
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  for (var i = 0; i < keysA.length; i++) {
-    if (
-      !Object.prototype.hasOwnProperty.call(objB, keysA[i]) ||
-      !Object.is(objA[keysA[i]], objB[keysA[i]])
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
 export function isTaskInArray(
   currentTasks: TaskProps[],
+  setNum: Function,
+  num: number,
   oldTasks: TypeProps[]
 ) {
   let aux: boolean = false;
@@ -69,32 +37,31 @@ export function isTaskInArray(
       }
     }
   }
-  for (let type in oldTasks) {
-    if (oldTasks[type].tasks.length != 0) {
-      for (let task in oldTasks[type].tasks) {
+  for (let type in typesAux) {
+    console.log(typesAux);
+    if (typesAux[type].tasks.length != 0) {
+      for (let task in typesAux[type].tasks) {
         for (let task1 of currentTasks) {
-          let alredyExistis: boolean = false;
           let typesAuxCopy1 = JSON.parse(JSON.stringify(typesAux2));
-
-          for (let task3 of oldTasks[type].tasks) {
-            if (task3.id === task1.id) {
+          let alredyExistis: boolean = false;
+          for (let task3 of typesAux[type].tasks) {
+            if (task1.id === task3.id) {
               alredyExistis = true;
             }
           }
 
           if (
-            task1.id != oldTasks[type].tasks[task].id &&
-            task1.typeId === oldTasks[type].id &&
-            !alredyExistis
+            task1.id != typesAux[type].tasks[task].id &&
+            task1.typeId === typesAux[type].id &&
+            alredyExistis == false
           ) {
-            console.log(typesAux[type].tasks.includes(task1));
             typesAux[type].tasks.push(task1);
           }
         }
       }
     } else {
       for (let task1 of currentTasks) {
-        if (task1.typeId === oldTasks[type].id) {
+        if (task1.typeId === typesAux[type].id) {
           typesAux[type].tasks.push(task1);
         }
       }
