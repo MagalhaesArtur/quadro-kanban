@@ -48,7 +48,6 @@ function App() {
 
   useEffect(() => {
     let types = localStorage.getItem("data");
-
     if (num == 0 && types != null) {
       let string: any = localStorage.getItem("data");
       let aux: TypeProps[] = JSON.parse(string);
@@ -59,7 +58,6 @@ function App() {
         }
       }
       setTypesTasks(aux);
-
       localStorage.setItem("data", JSON.stringify(aux));
     }
   }, [currentTask]);
@@ -74,7 +72,6 @@ function App() {
           .then((data: TaskProps[]) => {
             let string: any = localStorage.getItem("data");
             let aux: TypeProps[] = JSON.parse(string);
-            console.log(data);
 
             for (let type in aux) {
               for (let task in aux[type].tasks) {
@@ -108,10 +105,10 @@ function App() {
                   let string: any = localStorage.getItem("data");
                   let aux: TypeProps[] = JSON.parse(string);
                   setTypesTasks(isTaskInArray(data, aux));
-                  // localStorage.setItem(
-                  //   "data",
-                  //   JSON.stringify(isTaskInArray(data, aux))
-                  // );
+                  localStorage.setItem(
+                    "data",
+                    JSON.stringify(isTaskInArray(data, aux))
+                  );
                 });
               });
             }
