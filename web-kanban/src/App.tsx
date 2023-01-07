@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import { Droppable } from "react-beautiful-dnd";
-import { Draggable } from "react-beautiful-dnd";
+import { Droppable, Draggable } from "react-beautiful-dnd";
 import { ChatText, CircleNotch, X } from "phosphor-react";
 import Button from "@mui/material/Button";
 
@@ -16,7 +15,7 @@ import Comments from "./components/comments";
 import { SwitchTheme } from "./components/SwitchTheme";
 import { isTaskInArray } from "./utils/isTaskInArray";
 
-const options = {
+const fetchOptions = {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
@@ -24,7 +23,6 @@ const options = {
 };
 
 function App() {
-  let [TasksAux, setTasksAux] = useState(Object);
   const [currentTask, setCurrentTask] = useState(Object);
 
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -35,23 +33,32 @@ function App() {
     Array<TaskCommentsProps>
   );
   let [currentItemId, setCurrentItemId] = useState(String);
-  const [i, seti] = useState(0);
-  const [x, setx] = useState(0);
+
+  // State que monitora mudanças de tipo de tarefas
+  const [onChangeTask, setOnChangeTask] = useState(0);
+  const [isCreatedComment, setIsCreatedComment] = useState(0);
 
   const [currentType, setCurrentType] = useState(String);
   const [isMouseOnTask, setIsMouseOnTask] = useState(false);
   const [itemId, setItemId] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openDialog2, setOpenDialog2] = useState(false);
 
-  const [num, setNum] = useState(0);
+  // Variável auxiliar que identifica se o dialog de criação de uma tarefa está aberto
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
+  // Variável auxiliar que identifica se o dialog de criação de um comentário tarefaa está aberto
+  const [isCreateCommentOpen, setIsCreateCommentOpen] = useState(false);
+
+  // Variável auxiliar que identifica se o usuário fez alguma mudança do tipo de tarefa
+  const [isChanged, setIsChanged] = useState(0);
+  //
+  //
+  //
+  // Hook que atuliza uma coluna de tarefas se foi feita uma mudança do tipo de uma tarefa (Adição).
   useEffect(() => {
     let types = localStorage.getItem("data");
-    if (num == 0 && types != null) {
+    if (isChanged == 0 && types != null) {
       let string: any = localStorage.getItem("data");
       let aux: TypeProps[] = JSON.parse(string);
-      console.log(aux);
       for (let type in aux) {
         if (currentTask.typeId == aux[type].id) {
           aux[type].tasks.push(currentTask);
@@ -62,11 +69,13 @@ function App() {
     }
   }, [currentTask]);
 
+  // Hook que atuliza uma coluna de tarefas se foi feita uma alteração de no tipo de uma tarefa em outra página (Remoção). A atualização ocorre ao reiniciar a página.
+  // Também verifica se foi feita uma criação de outra tarefa em outra página ao reiniciar a página. A atualização ocorre ao reiniciar a página.
   useEffect(() => {
     let types = localStorage.getItem("data");
 
-    if (num == 0 && types != null) {
-      fetch(`${import.meta.env.VITE_API_URL}/`, options).then((res) => {
+    if (isChanged == 0 && types != null) {
+      fetch(`${import.meta.env.VITE_API_URL}/`, fetchOptions).then((res) => {
         res
           .json()
           .then((data: TaskProps[]) => {
@@ -99,28 +108,34 @@ function App() {
           .then(() => {
             let types = localStorage.getItem("data");
 
-            if (num == 0 && types != null) {
-              fetch(`${import.meta.env.VITE_API_URL}/`, options).then((res) => {
-                res.json().then((data: TaskProps[]) => {
-                  let string: any = localStorage.getItem("data");
-                  let aux: TypeProps[] = JSON.parse(string);
+            if (isChanged == 0 && types != null) {
+              fetch(`${import.meta.env.VITE_API_URL}/`, fetchOptions).then(
+                (res) => {
+                  res.json().then((data: TaskProps[]) => {
+                    let string: any = localStorage.getItem("data");
+                    let aux: TypeProps[] = JSON.parse(string);
 
-                  let typesAux: TypeProps[] = isTaskInArray(
-                    data,
-                    setNum,
-                    num,
-                    aux
-                  );
-                  setTypesTasks(typesAux);
-                  localStorage.setItem("data", JSON.stringify(typesAux));
-                });
-              });
+                    let typesAux: TypeProps[] = isTaskInArray(
+                      data,
+                      setIsChanged,
+                      isChanged,
+                      aux
+                    );
+                    setTypesTasks(typesAux);
+                    localStorage.setItem("data", JSON.stringify(typesAux));
+                  });
+                }
+              );
             }
           });
       });
     }
   }, []);
+  //
+  //
+  //
 
+  // Fazendo a requisição dos comentários de tarefas e inserindo os comentários na propriedades comments no objeto de uma tarefa.
   useEffect(() => {
     let aux: any = localStorage.getItem("data");
     fetch(`${import.meta.env.VITE_API_URL}/comments`).then((res) => {
@@ -128,30 +143,32 @@ function App() {
         setComments(data);
       });
     });
-    if (aux === null || x != 0) {
-      fetch(`${import.meta.env.VITE_API_URL}/types`, options).then((res) => {
-        res.json().then(async (data) => {
-          let aux: TypeProps[] = data;
-          setTypesTasks(data);
-          for (let type in aux) {
-            for (let task in aux[type].tasks) {
-              for (let comment in comments) {
-                if (comments[comment].taskId == aux[type].tasks[task].id) {
+    if (aux === null || isCreatedComment != 0) {
+      fetch(`${import.meta.env.VITE_API_URL}/types`, fetchOptions).then(
+        (res) => {
+          res.json().then(async (data) => {
+            let aux: TypeProps[] = data;
+            setTypesTasks(data);
+            for (let type in aux) {
+              for (let task in aux[type].tasks) {
+                for (let comment in comments) {
+                  if (comments[comment].taskId == aux[type].tasks[task].id) {
+                  }
                 }
               }
             }
-          }
-          setTypesTasks(aux);
-          localStorage.setItem("data", JSON.stringify(data));
-        });
-      });
+            setTypesTasks(aux);
+            localStorage.setItem("data", JSON.stringify(data));
+          });
+        }
+      );
     } else {
       setTypesTasks(JSON.parse(aux));
     }
-  }, [x]);
+  }, [isCreatedComment]);
 
   useEffect(() => {
-    if (num != 0) {
+    if (isChanged != 0) {
       setLoading(true);
       let aux: any = localStorage.getItem("data");
       if (aux != null) {
@@ -166,15 +183,15 @@ function App() {
         });
       }
     }
-  }, [i]);
+  }, [onChangeTask]);
 
   var filteredSourceType: TaskProps[] = [];
 
   // Função que faz a devida mudança nos index's das colunas
   const onDragEnd = (result: any) => {
     setItemId(result.draggableId);
-    setNum(1 + num);
-    seti(1 + i);
+    setIsChanged(1 + isChanged);
+    setOnChangeTask(1 + onChangeTask);
 
     var draggedItem: any;
     // Excluindo o item arrastado
@@ -264,11 +281,11 @@ function App() {
   };
 
   return (
-    <Dialog.Root open={openDialog} onOpenChange={setOpenDialog}>
+    <Dialog.Root open={isCreateTaskOpen} onOpenChange={setIsCreateTaskOpen}>
       <Dialog.Portal>
         <Dialog.Overlay
           onClick={() => {
-            setOpenDialog(false);
+            setIsCreateTaskOpen(false);
           }}
           className="bg-black/60 inset-0 fixed"
         />
@@ -281,9 +298,9 @@ function App() {
             setLoading={setLoading}
             setTypeTasks={setTypesTasks}
             typeTasks={typesTasks}
-            i={i}
-            setOpenDialog={setOpenDialog}
-            seti={seti}
+            onChangeTask={onChangeTask}
+            setIsCreateTaskOpen={setIsCreateTaskOpen}
+            setOnChangeTask={setOnChangeTask}
             currentType={currentType}
           />
 
@@ -292,11 +309,14 @@ function App() {
         </Dialog.Content>
       </Dialog.Portal>
 
-      <Dialog.Root open={openDialog2} onOpenChange={setOpenDialog2}>
+      <Dialog.Root
+        open={isCreateCommentOpen}
+        onOpenChange={setIsCreateCommentOpen}
+      >
         <Dialog.Portal>
           <Dialog.Overlay
             onClick={() => {
-              setOpenDialog2(false);
+              setIsCreateCommentOpen(false);
             }}
             className="bg-black/60 inset-0 fixed"
           />
@@ -314,8 +334,8 @@ function App() {
             </Dialog.Title>
             <Comments
               isDarkMode={isDarkMode}
-              setx={setx}
-              x={x}
+              setIsCreatedComment={setIsCreatedComment}
+              isCreatedComment={isCreatedComment}
               setComments={setComments}
               comments={comments}
               setLoading={setLoading}
@@ -484,7 +504,7 @@ function App() {
                                   }
                                   setCurrentComments(auxComments);
                                   setCurrentItemId(itemId);
-                                  setOpenDialog2(true);
+                                  setIsCreateCommentOpen(true);
                                 }}
                                 className="!rounded-full  !min-w-[0px] !p-2 "
                                 variant="outlined"

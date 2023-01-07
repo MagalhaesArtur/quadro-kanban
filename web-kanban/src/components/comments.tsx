@@ -12,16 +12,13 @@ function Comments(props: {
   setComments: Function;
   setCurrentComments: Function;
   currentItemId: string;
-  setx: Function;
-  x: number;
+  setIsCreatedComment: Function;
+  isCreatedComment: number;
   setLoading: Function;
   loading: boolean;
 }) {
   let [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
-  const [aux1, setAux] = useState(Array<TaskCommentsProps>);
-
-  const [x, setx] = useState(0);
 
   const [currentComment, setCurrentComment] = useState("");
   return (
@@ -40,7 +37,7 @@ function Comments(props: {
               aux.push(data);
               props.setCurrentComments(aux);
               props.setLoading(false);
-              props.setx(props.x + 1);
+              props.setIsCreatedComment(props.isCreatedComment + 1);
             });
           });
           setTimeout(() => {
@@ -149,7 +146,6 @@ function Comments(props: {
 
                     props.setLoading(false);
                   });
-                  setx(x + 1);
                 }}
                 className={
                   comment.id == currentComment

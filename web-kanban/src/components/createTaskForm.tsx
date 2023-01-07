@@ -8,9 +8,9 @@ import { Loading } from "./Loading";
 
 function CreateTaskForm(props: {
   typeTasks: TypeProps[];
-  i: number;
-  seti: Function;
-  setOpenDialog: Function;
+  onChangeTask: number;
+  setOnChangeTask: Function;
+  setIsCreateTaskOpen: Function;
   setTypeTasks: Function;
   currentType: string;
   setLoading: Function;
@@ -76,15 +76,14 @@ function CreateTaskForm(props: {
           });
         });
 
-        props.seti(props.i + 1);
+        props.setOnChangeTask(props.onChangeTask + 1);
         setContent("");
         setPriority(Number);
 
-        // props.setOpenDialog(false);
         setTimeout(() => {
           alert("Tarefa Criada com Sucesso!");
           setIsLoading(false);
-          props.setOpenDialog(false);
+          props.setIsCreateTaskOpen(false);
         }, 500);
       }}
     >
